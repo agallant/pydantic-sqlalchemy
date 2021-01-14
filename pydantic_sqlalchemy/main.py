@@ -1,4 +1,5 @@
 from typing import Container, Optional, Type
+from uuid import UUID
 
 from pydantic import BaseConfig, BaseModel, create_model
 from sqlalchemy.inspection import inspect
@@ -26,7 +27,8 @@ def sqlalchemy_to_pydantic(
                     if hasattr(column.type.impl, "python_type"):
                         python_type = column.type.impl.python_type
                 elif hasattr(column.type, "python_type"):
-                    python_type = column.type.python_type
+                    python_type = (UUID if str(column.type) == 'UUID'
+                                   else column.type.python_type)
                 assert python_type, f"Could not infer python_type for {column}"
                 default = None
                 if column.default is None and not column.nullable:
